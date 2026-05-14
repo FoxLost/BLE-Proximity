@@ -1,0 +1,554 @@
+<Window x:Class="BLEProximity.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:helpers="clr-namespace:BLEProximity.Helpers"
+        mc:Ignorable="d"
+        Title="BLE Proximity"
+        Height="720"
+        Width="1100"
+        MinHeight="640"
+        MinWidth="920"
+        Background="{DynamicResource AppBackgroundBrush}"
+        Foreground="{DynamicResource PrimaryTextBrush}"
+        FontFamily="Segoe UI"
+        x:Name="MainWin">
+
+    <Window.Resources>
+        <helpers:RssiToColorConverter x:Key="RssiToColorConverter"/>
+        <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <helpers:UtcToLocalTimeConverter x:Key="UtcToLocalTimeConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <SolidColorBrush x:Key="AppBackgroundBrush" Color="#F4F6F8"/>
+        <SolidColorBrush x:Key="PanelBrush" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="PanelBorderBrush" Color="#DCE2EA"/>
+        <SolidColorBrush x:Key="PrimaryTextBrush" Color="#182231"/>
+        <SolidColorBrush x:Key="TextMutedBrush" Color="#657487"/>
+        <SolidColorBrush x:Key="SubtleBackgroundBrush" Color="#F8FAFC"/>
+        <SolidColorBrush x:Key="InputBackgroundBrush" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="ButtonBorderBrush" Color="#C8D2DE"/>
+        <SolidColorBrush x:Key="GridLineBrush" Color="#EEF2F6"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#2563EB"/>
+        <SolidColorBrush x:Key="AccentDarkBrush" Color="#1D4ED8"/>
+        <SolidColorBrush x:Key="DangerTextBrush" Color="#B91C1C"/>
+        <SolidColorBrush x:Key="SelectionBrush" Color="#DBEAFE"/>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        </Style>
+
+        <Style x:Key="MutedTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        </Style>
+
+        <Style x:Key="PanelStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="14"/>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="12,7"/>
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonChrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="7"
+                                Padding="{TemplateBinding Padding}"
+                                TextElement.Foreground="{TemplateBinding Foreground}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonChrome" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonChrome" Property="Opacity" Value="0.78"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ButtonChrome" Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentDarkBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="MinHeight" Value="31"/>
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryTextBrush}"/>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="MinHeight" Value="31"/>
+            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="DropDownToggle"
+                                          Background="{TemplateBinding Background}"
+                                          BorderBrush="{TemplateBinding BorderBrush}"
+                                          BorderThickness="1"
+                                          Focusable="False"
+                                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                          ClickMode="Press">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="ComboChrome"
+                                                Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="7">
+                                            <Grid>
+                                                <ContentPresenter Margin="9,0,32,0"
+                                                                  HorizontalAlignment="Left"
+                                                                  VerticalAlignment="Center"
+                                                                  Content="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                                  TextElement.Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1"
+                                                           Text="v"
+                                                           Foreground="{DynamicResource TextMutedBrush}"
+                                                           HorizontalAlignment="Right"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,10,0"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="ComboChrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="ComboChrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+
+                            <Popup x:Name="Popup"
+                                   Placement="Bottom"
+                                   AllowsTransparency="True"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   PopupAnimation="Fade"
+                                   Focusable="False">
+                                <Border Background="{DynamicResource InputBackgroundBrush}"
+                                        BorderBrush="{DynamicResource ButtonBorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="7"
+                                        MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                        MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <ScrollViewer Margin="2" CanContentScroll="True">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+                        <Setter Property="Padding" Value="8,5"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ComboBoxItem">
+                                    <Border x:Name="ItemChrome"
+                                            Background="{TemplateBinding Background}"
+                                            Padding="{TemplateBinding Padding}"
+                                            TextElement.Foreground="{TemplateBinding Foreground}">
+                                        <ContentPresenter/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsHighlighted" Value="True">
+                                            <Setter TargetName="ItemChrome" Property="Background" Value="{DynamicResource SelectionBrush}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="ItemChrome" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        </Style>
+
+        <Style TargetType="TabControl">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style TargetType="TabItem">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SubtleBackgroundBrush}"/>
+            <Setter Property="Padding" Value="12,7"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="TabChrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{DynamicResource PanelBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="7"
+                                Padding="{TemplateBinding Padding}"
+                                TextElement.Foreground="{TemplateBinding Foreground}">
+                            <ContentPresenter ContentSource="Header"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabChrome" Property="Background" Value="{DynamicResource SelectionBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="TabChrome" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource GridLineBrush}"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="AlternatingRowBackground" Value="{DynamicResource SubtleBackgroundBrush}"/>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Padding" Value="8,7"/>
+            <Setter Property="Background" Value="{DynamicResource SubtleBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+
+        <Style x:Key="RssiRowStyle" TargetType="DataGridRow">
+            <Setter Property="Background" Value="{Binding SmoothedRssi, Converter={StaticResource RssiToColorConverter}}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        </Style>
+
+        <Style TargetType="ListBox">
+            <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource PanelStyle}" Padding="16" Margin="0,0,0,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MinWidth="260"/>
+                    <ColumnDefinition Width="Auto" MaxWidth="560"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="BLE Proximity" FontSize="22" FontWeight="SemiBold"/>
+                    <TextBlock Text="Made with Free Time and Free Will by FoxLost"
+                               Style="{StaticResource MutedTextStyle}"
+                               Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <WrapPanel Grid.Column="1"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center">
+                    <Button Content="Save Settings"
+                            Command="{Binding SaveSettingsCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Margin="0,0,8,0"/>
+                    <Button Content="{Binding ExecutionPauseButtonText}"
+                            Command="{Binding ToggleExecutionPauseCommand}"
+                            Margin="0,0,8,0"/>
+                    <Button Content="Minimize Application"
+                            Command="{Binding MinimizeApplicationCommand}"
+                            Margin="0,0,8,0"/>
+                    <Button Content="Exit Application"
+                            Command="{Binding ExitApplicationCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"/>
+                </WrapPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.45*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0" Margin="0,0,12,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1.35*"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Style="{StaticResource PanelStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Manual Discovery" Style="{StaticResource SectionTitleStyle}"/>
+                                <TextBlock Text="{Binding DeviceScanStatusText}" Style="{StaticResource MutedTextStyle}" Margin="0,3,0,0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Content="{Binding DeviceScanButtonText}"
+                                        Command="{Binding StartDeviceScanCommand}"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        Margin="0,0,8,0"/>
+                                <Button Content="Stop"
+                                        Command="{Binding StopDeviceScanCommand}"
+                                        Visibility="{Binding IsDeviceScanActive, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <DataGrid Grid.Row="1"
+                                  x:Name="ScannedDevicesGrid"
+                                  ItemsSource="{Binding ScannedDevicesView}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  SelectionMode="Single"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  RowStyle="{StaticResource RssiRowStyle}"
+                                  MouseDoubleClick="ScannedDevicesGrid_MouseDoubleClick">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Add to Trusted Devices" Click="AddToTrusted_Click"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" MinWidth="130"/>
+                                <DataGridTextColumn Header="MAC Address" Binding="{Binding MacAddress}" Width="132"/>
+                                <DataGridTextColumn Header="Raw" Binding="{Binding RawRssi, StringFormat={}{0:F0} dBm}" Width="82"/>
+                                <DataGridTextColumn Header="Smoothed" Binding="{Binding SmoothedRssi, StringFormat={}{0:F1} dBm}" Width="96"/>
+                                <DataGridTextColumn Header="Seen (local)" Binding="{Binding LastSeen, Converter={StaticResource UtcToLocalTimeConverter}}" Width="92"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="2" Style="{StaticResource PanelStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                            <TextBlock Text="Trusted Devices" Style="{StaticResource SectionTitleStyle}"/>
+                            <TextBlock Text="{Binding StatusText}"
+                                       Style="{StaticResource MutedTextStyle}"
+                                       Margin="0,3,0,0"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <DataGrid Grid.Row="1"
+                                  x:Name="TrustedDevicesGrid"
+                                  ItemsSource="{Binding TrustedDevices}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  SelectionMode="Single"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Rename Device"
+                                              Command="{Binding DataContext.RenameTrustedDeviceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                              CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                    <Separator/>
+                                    <MenuItem Header="Remove Device"
+                                              Command="{Binding DataContext.RemoveTrustedDeviceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                              CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" MinWidth="180"/>
+                                <DataGridTextColumn Header="MAC Address" Binding="{Binding MacAddress}" Width="180"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <Border Grid.Column="1" Style="{StaticResource PanelStyle}">
+                <TabControl>
+                    <TabItem Header="Proximity">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,12,8,0">
+                            <StackPanel>
+                                <TextBlock Text="Thresholds" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,12"/>
+
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="92"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="64"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="In range" VerticalAlignment="Center"/>
+                                    <Slider Grid.Column="1" Minimum="-90" Maximum="-50" Value="{Binding InRangeThreshold}" TickFrequency="5" IsSnapToTickEnabled="True"/>
+                                    <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="8,0,0,0" Text="{Binding InRangeThreshold, StringFormat={}{0} dBm}"/>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="92"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="64"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Out range" VerticalAlignment="Center"/>
+                                    <Slider Grid.Column="1" Minimum="-95" Maximum="-55" Value="{Binding OutOfRangeThreshold}" TickFrequency="5" IsSnapToTickEnabled="True"/>
+                                    <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="8,0,0,0" Text="{Binding OutOfRangeThreshold, StringFormat={}{0} dBm}"/>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="92"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="64"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Smoothing" VerticalAlignment="Center"/>
+                                    <Slider Grid.Column="1" Minimum="0.1" Maximum="0.5" Value="{Binding RssiAlpha}" TickFrequency="0.05" IsSnapToTickEnabled="True"/>
+                                    <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="8,0,0,0" Text="{Binding RssiAlpha, StringFormat={}{0:F2}}"/>
+                                </Grid>
+
+                                <UniformGrid Columns="3" Margin="0,4,0,14">
+                                    <StackPanel Margin="0,0,8,0">
+                                        <TextBlock Text="Timeout seconds" Style="{StaticResource MutedTextStyle}" Margin="0,0,0,4"/>
+                                        <TextBox Text="{Binding OutOfRangeTimeoutSec, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="4,0,4,0">
+                                        <TextBlock Text="Grace seconds" Style="{StaticResource MutedTextStyle}" Margin="0,0,0,4"/>
+                                        <TextBox Text="{Binding GracePeriodSec, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="8,0,0,0">
+                                        <TextBlock Text="Watchdog seconds" Style="{StaticResource MutedTextStyle}" Margin="0,0,0,4"/>
+                                        <TextBox Text="{Binding MissingBeaconGraceSec, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                </UniformGrid>
+
+                                <Border Background="{DynamicResource SubtleBackgroundBrush}" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
+                                    <StackPanel>
+                                        <CheckBox Content="Multi-device mode" IsChecked="{Binding UseMultiDevice}" Margin="0,0,0,8" Command="{Binding ToggleMultiDeviceCommand}"/>
+                                        <CheckBox Content="Start with Windows" IsChecked="{Binding StartWithWindows}" Margin="0,0,0,8" Command="{Binding ToggleStartupCommand}"/>
+                                        <CheckBox Content="Dark mode" IsChecked="{Binding IsDarkMode}"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <TabItem Header="Command">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,12,8,0">
+                            <StackPanel>
+                                <TextBlock Text="Execution" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,12"/>
+
+                                <TextBlock Text="Preset" Style="{StaticResource MutedTextStyle}" Margin="0,0,0,4"/>
+                                <ComboBox ItemsSource="{Binding AvailablePresets}" SelectedItem="{Binding CommandPreset}" Margin="0,0,0,10"/>
+
+                                <TextBlock Text="Executable" Style="{StaticResource MutedTextStyle}" Margin="0,0,0,4"/>
+                                <TextBox Text="{Binding ExecutablePath, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+
+                                <TextBlock Text="Arguments" Style="{StaticResource MutedTextStyle}" Margin="0,0,0,4"/>
+                                <TextBox Text="{Binding Arguments, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12"/>
+
+                                <TextBlock Text="{Binding ValidationError}"
+                                           Foreground="{DynamicResource DangerTextBrush}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,10"
+                                           Visibility="{Binding ValidationError, Converter={StaticResource NullToVisibilityConverter}, FallbackValue=Collapsed}"/>
+
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <TabItem Header="Log">
+                        <Grid Margin="0,12,0,0">
+                            <ListBox x:Name="LogListBox" ItemsSource="{Binding LogEntries}" FontFamily="Consolas" FontSize="11" BorderThickness="0">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" TextWrapping="NoWrap"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

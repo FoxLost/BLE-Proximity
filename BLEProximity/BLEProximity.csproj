@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>BLE Proximity</AssemblyName>
+    <RootNamespace>BLEProximity</RootNamespace>
+    <AssemblyTitle>BLE Proximity</AssemblyTitle>
+    <Product>BLE Proximity</Product>
+    <ApplicationIcon>..\icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <PackageReference Include="Stateless" Version="5.16.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\lock_green.ico" />
+    <Resource Include="Resources\lock_yellow.ico" />
+    <Resource Include="Resources\lock_red.ico" />
+    <Resource Include="Resources\lock_gray.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\icon.ico" Link="icon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
