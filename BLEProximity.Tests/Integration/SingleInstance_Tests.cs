@@ -322,6 +322,7 @@ public class SingleInstance_Tests : IDisposable
     {
         public void ShowError(string message, string title) { }
         public void ShowWarning(string message, string title) { }
+        public string? ShowInputDialog(string title, string prompt, string defaultValue = "") => null;
     }
 
     #endregion

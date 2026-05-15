@@ -376,6 +376,11 @@ public class ConfigManagerTests : IDisposable
             WarningMessages.Add(new NotificationRecord(message, title));
         }
 
+        public string? ShowInputDialog(string title, string prompt, string defaultValue = "")
+        {
+            return null;
+        }
+
         public record NotificationRecord(string Message, string Title);
     }
 

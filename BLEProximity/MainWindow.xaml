@@ -425,15 +425,16 @@
                                   IsReadOnly="True"
                                   SelectionMode="Single"
                                   CanUserAddRows="False"
-                                  CanUserDeleteRows="False">
+                                  CanUserDeleteRows="False"
+                                  PreviewMouseRightButtonDown="TrustedDevicesGrid_PreviewMouseRightButtonDown">
                             <DataGrid.ContextMenu>
-                                <ContextMenu>
+                                <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
                                     <MenuItem Header="Rename Device"
-                                              Command="{Binding DataContext.RenameTrustedDeviceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                              Command="{Binding RenameTrustedDeviceCommand}"
                                               CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
                                     <Separator/>
                                     <MenuItem Header="Remove Device"
-                                              Command="{Binding DataContext.RemoveTrustedDeviceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                              Command="{Binding RemoveTrustedDeviceCommand}"
                                               CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
                                 </ContextMenu>
                             </DataGrid.ContextMenu>

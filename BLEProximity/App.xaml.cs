@@ -32,7 +32,7 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         _debugLoggingEnabled = e.Args.Any(arg => arg.Equals("--debug-console", StringComparison.OrdinalIgnoreCase))
-            || Environment.GetEnvironmentVariable("BLELOCK_DEBUG") == "1";
+            || Environment.GetEnvironmentVariable("BLE_PROXIMITY_DEBUG") == "1";
 
         if (_debugLoggingEnabled)
         {

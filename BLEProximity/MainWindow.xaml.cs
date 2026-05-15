@@ -50,4 +50,28 @@ public partial class MainWindow : Window
             }
         }
     }
+
+    private void TrustedDevicesGrid_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        var row = FindVisualParent<DataGridRow>(e.OriginalSource as DependencyObject);
+        if (row == null)
+            return;
+
+        row.Focus();
+        row.IsSelected = true;
+        TrustedDevicesGrid.SelectedItem = row.Item;
+    }
+
+    private static T? FindVisualParent<T>(DependencyObject? child) where T : DependencyObject
+    {
+        while (child != null)
+        {
+            if (child is T parent)
+                return parent;
+
+            child = System.Windows.Media.VisualTreeHelper.GetParent(child);
+        }
+
+        return null;
+    }
 }

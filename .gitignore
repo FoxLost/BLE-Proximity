@@ -111,6 +111,8 @@ DocProject/Help/html
 
 # Click-Once directory
 publish/
+publish*/
+release-artifacts/
 
 # Publish Web Output
 *.[Pp]ublish.xml

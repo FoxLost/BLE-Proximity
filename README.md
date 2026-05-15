@@ -1,6 +1,6 @@
 # BLE Proximity
 
-**BLE Proximity** adalah aplikasi desktop Windows yang memantau perangkat Bluetooth Low Energy (BLE) dan secara otomatis menjalankan perintah kustom ketika perangkat tepercaya keluar dari jangkauan. Aplikasi ini dirancang untuk meningkatkan keamanan dengan mengunci workstation secara otomatis ketika smartphone atau perangkat BLE lainnya tidak terdeteksi dalam jarak tertentu.
+**BLE Proximity** adalah aplikasi desktop Windows yang memantau perangkat Bluetooth Low Energy (BLE) dan secara otomatis menjalankan perintah kustom ketika perangkat tepercaya keluar dari jangkauan. Aplikasi ini dirancang untuk meningkatkan keamanan dengan mengunci workstation secara otomatis ketika smartphone, smart ring, atau perangkat BLE lainnya tidak terdeteksi dalam jarak tertentu.
 
 ## Kenapa tidak menggunakan Dynamic Lock bawaan Windows?
 Karena harus pairing dulu baru bisa di tambahkan dan hanya bisa ke HP saja, karena aku menggunakan Smart Ring jadilah aplikasi ini~
@@ -78,8 +78,8 @@ Karena harus pairing dulu baru bisa di tambahkan dan hanya bisa ke HP saja, kare
 ### Build dari Source
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/BLEwinLock.git
-cd BLEwinLock
+git clone https://github.com/FoxLost/BLE-Proximity.git
+cd BLE-Proximity
 
 # Build project
 dotnet build BLEProximity/BLEProximity.csproj -c Release
@@ -165,7 +165,7 @@ Lokasi: `%APPDATA%\BLEProximity\config.json`
 "BLE Proximity.exe" --debug-console
 
 # Set environment variable untuk debug
-set BLELOCK_DEBUG=1
+set BLE_PROXIMITY_DEBUG=1
 "BLE Proximity.exe"
 ```
 
@@ -248,7 +248,14 @@ dotnet test --filter "Category=Integration"
 
 ## 📝 Changelog
 
-### v1.0.1 (Current)
+### v1.0.2 (Current)
+- ✅ Rename penuh dari BLELockApp/BLE Lock ke BLE Proximity
+- ✅ Context menu Trusted Devices diperbaiki
+- ✅ Persistensi dark mode di `config.json`
+- ✅ Manual discovery dan trusted-device watchdog dirapikan
+- ✅ Build compact dan self-contained untuk release
+
+### v1.0.1
 - ✅ Fitur rename trusted devices via context menu
 - ✅ Implementasi lengkap semua fitur core
 - ✅ UI dengan tema gelap/terang
