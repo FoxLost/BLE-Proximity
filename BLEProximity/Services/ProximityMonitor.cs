@@ -59,7 +59,10 @@ public class ProximityMonitor : IProximityMonitor, IDisposable
             .Permit(ProximityTrigger.RssiRecovered, ProximityState.InRange);
 
         _stateMachine.Configure(ProximityState.Executing)
-            .Permit(ProximityTrigger.CommandCompleted, ProximityState.InRange);
+            .Permit(ProximityTrigger.CommandCompleted, ProximityState.OutOfRangeLatched);
+
+        _stateMachine.Configure(ProximityState.OutOfRangeLatched)
+            .Permit(ProximityTrigger.RssiRecovered, ProximityState.InRange);
 
         _stateMachine.OnTransitioned(OnTransitioned);
     }
@@ -188,6 +191,18 @@ public class ProximityMonitor : IProximityMonitor, IDisposable
                 case ProximityState.Executing:
                     System.Diagnostics.Debug.WriteLine("[ProximityMonitor] Ignoring RSSI update while executing command");
                     break;
+
+                case ProximityState.OutOfRangeLatched:
+                    if (smoothedRssi > _inRangeThreshold)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[ProximityMonitor] RSSI {smoothedRssi:F1} > {_inRangeThreshold}, releasing out-of-range latch");
+                        FireTrigger(ProximityTrigger.RssiRecovered);
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[ProximityMonitor] RSSI {smoothedRssi:F1} <= {_inRangeThreshold}, command already triggered; waiting for in-range reset");
+                    }
+                    break;
             }
         }
     }
@@ -254,6 +269,12 @@ public class ProximityMonitor : IProximityMonitor, IDisposable
                 
             case ProximityState.Executing:
                 Console.WriteLine("[ProximityMonitor] Entered Executing - stopping countdown timer");
+                StopCountdownTimer();
+                break;
+
+            case ProximityState.OutOfRangeLatched:
+                Console.WriteLine("[ProximityMonitor] Entered OutOfRangeLatched - command already triggered; waiting for RSSI recovery");
+                StopOutOfRangeTimer();
                 StopCountdownTimer();
                 break;
         }

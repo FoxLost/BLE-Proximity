@@ -481,6 +481,12 @@ public partial class MainViewModel : ObservableObject
                     AddLog($"Executing command: {GetCommandDescription()}");
                 break;
 
+            case ProximityState.OutOfRangeLatched:
+                Console.WriteLine("[MainViewModel] Processing OutOfRangeLatched UI case");
+                if (oldState == ProximityState.Executing)
+                    AddLog($"Out-of-range action completed for \"{activeDevice}\". Waiting for device to return in range before triggering again.");
+                break;
+
             case ProximityState.InRange when oldState == ProximityState.Cancelled:
                 _toastNotifier.DismissCountdownToast();
                 AddLog($"Device \"{activeDevice}\" returned to range. Countdown cancelled.");
@@ -489,6 +495,8 @@ public partial class MainViewModel : ObservableObject
             case ProximityState.InRange:
                 if (oldState == ProximityState.Executing)
                     AddLog($"Command completed. Resumed monitoring.");
+                else if (oldState == ProximityState.OutOfRangeLatched)
+                    AddLog($"Device \"{activeDevice}\" returned to range. Out-of-range trigger reset.");
                 else if (oldState != ProximityState.InRange)
                     AddLog($"Device \"{activeDevice}\" is in range.");
                 break;
@@ -565,6 +573,7 @@ public partial class MainViewModel : ObservableObject
             ProximityState.OutOfRangePending => "Out of Range Pending ⏳",
             ProximityState.Countdown => "Countdown ⚠️ — Executing in 3s",
             ProximityState.Executing => "Executing Command 🔒",
+            ProximityState.OutOfRangeLatched => "Out of Range — Waiting for return",
             ProximityState.Cancelled => "Cancelled — Returned to range",
             _ => state.ToString()
         };

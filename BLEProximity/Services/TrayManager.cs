@@ -196,6 +196,7 @@ public class TrayManager : ITrayManager
             ProximityState.OutOfRangePending => "Out of Range Pending",
             ProximityState.Countdown => "Countdown",
             ProximityState.Executing => "Executing",
+            ProximityState.OutOfRangeLatched => "Out of Range - Action Triggered",
             ProximityState.Cancelled => "No Device",
             _ => "No Device"
         };
@@ -221,6 +222,7 @@ public class TrayManager : ITrayManager
             ProximityState.OutOfRangePending => CreatePackUri("lock_yellow.ico"),
             ProximityState.Countdown => CreatePackUri("lock_red.ico"),
             ProximityState.Executing => CreatePackUri("lock_red.ico"),
+            ProximityState.OutOfRangeLatched => CreatePackUri("lock_red.ico"),
             ProximityState.Cancelled => CreatePackUri("lock_gray.ico"),
             _ => CreatePackUri("lock_gray.ico")
         };

@@ -6,5 +6,6 @@ public enum ProximityState
     OutOfRangePending,
     Countdown,
     Executing,
+    OutOfRangeLatched,
     Cancelled
 }

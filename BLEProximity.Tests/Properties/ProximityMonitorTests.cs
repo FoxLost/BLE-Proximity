@@ -116,6 +116,36 @@ public class ProximityMonitorTests
         Assert.Equal(ProximityState.InRange, monitor.CurrentState);
     }
 
+    [Fact(DisplayName = "Feature: ble-proximity-lock: Command triggers once until device returns in range")]
+    public void CommandCompleted_LatchesOutOfRangeUntilStrongSignalReturns()
+    {
+        using var monitor = CreateMonitor();
+
+        FireTriggerForTest(monitor, ProximityTrigger.RssiDropped);
+        FireTriggerForTest(monitor, ProximityTrigger.TimeoutExpired);
+        FireTriggerForTest(monitor, ProximityTrigger.CountdownExpired);
+        Assert.Equal(ProximityState.Executing, monitor.CurrentState);
+
+        monitor.NotifyCommandCompleted();
+        Assert.Equal(ProximityState.OutOfRangeLatched, monitor.CurrentState);
+
+        monitor.UpdateRssi(TestBluetoothAddress, DefaultOutOfRangeThreshold - 5);
+        Assert.Equal(ProximityState.OutOfRangeLatched, monitor.CurrentState);
+
+        monitor.UpdateRssi(TestBluetoothAddress, DefaultInRangeThreshold + 5);
+        Assert.Equal(ProximityState.InRange, monitor.CurrentState);
+    }
+
+    private static void FireTriggerForTest(ProximityMonitor monitor, ProximityTrigger trigger)
+    {
+        var method = typeof(ProximityMonitor).GetMethod(
+            "FireTrigger",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+
+        Assert.NotNull(method);
+        method!.Invoke(monitor, new object[] { trigger });
+    }
+
     #endregion
 
     #region Property 10: State Machine Transition on Weak Signal
